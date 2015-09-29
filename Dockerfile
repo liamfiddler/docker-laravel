@@ -4,7 +4,7 @@
 
 FROM ubuntu:14.04
 
-MAINTAINER BrandData <admin@branddata.com>
+MAINTAINER LiamFiddler <design+docker@liamfiddler.com>
 
 # Set correct environment variables
 ENV HOME /root
