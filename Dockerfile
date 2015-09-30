@@ -13,8 +13,13 @@ ENV DEBIAN_FRONTEND noninteractive
 # Use Supervisor to run and manage all other services
 CMD ["/usr/local/bin/supervisord", "-c", "/etc/supervisord.conf"]
 
+# make sure we're using PHP 5.6
 RUN echo "deb http://ppa.launchpad.net/ondrej/php5-5.6/ubuntu trusty main" >> /etc/apt/sources.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-key E5267A6C
+
+# make sure we're using the latest nginx
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv-keys C300EE8C; \
+  echo 'deb http://ppa.launchpad.net/nginx/stable/ubuntu trusty main' > /etc/apt/sources.list.d/nginx-stable-trusty.list;
 
 # Update and install required packages
 RUN apt-get update && apt-get install -y \
