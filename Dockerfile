@@ -1,9 +1,4 @@
-# ------------------------------------------------------------------------------
-# Start with the official Ubuntu 14.04 base image
-# ------------------------------------------------------------------------------
-
 FROM ubuntu:14.04
-
 MAINTAINER LiamFiddler <design+docker@liamfiddler.com>
 
 # Set correct environment variables
@@ -13,110 +8,69 @@ ENV DEBIAN_FRONTEND noninteractive
 # Use Supervisor to run and manage all other services
 CMD ["/usr/local/bin/supervisord", "-c", "/etc/supervisord.conf"]
 
-# make sure we're using PHP 5.6
-RUN echo "deb http://ppa.launchpad.net/ondrej/php5-5.6/ubuntu trusty main" >> /etc/apt/sources.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-key E5267A6C
+# Install required packages
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E5267A6C C300EE8C && \
+	echo 'deb http://ppa.launchpad.net/ondrej/php-7.0/ubuntu trusty main' > /etc/apt/sources.list.d/ondrej-php7.list && \
+	echo 'deb http://ppa.launchpad.net/nginx/development/ubuntu trusty main' > /etc/apt/sources.list.d/nginx.list && \
+	apt-get update && apt-get install -y \
+		curl \
+		libcurl3 \
+		libcurl3-dev \
+		python \
+		cron \
+		nano \
+		nginx \
+		php7.0-fpm \
+		php7.0-cli \
+		php7.0-gd \
+		php7.0-mcrypt \
+		php7.0-sqlite \
+		php7.0-curl \
+		php7.0-opcache \
+		php-mysql \
+		redis-server \
+		nodejs \
+		npm && \
+	mkdir /share && \
+	mkdir -p /etc/supervisord/ && \
+	mkdir /var/log/supervisord && \
+	mkdir /run/php && \
+	curl https://bootstrap.pypa.io/ez_setup.py -o - | python && \
+	easy_install supervisor
 
-# make sure we're using the latest nginx
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv-keys C300EE8C; \
-  echo 'deb http://ppa.launchpad.net/nginx/stable/ubuntu trusty main' > /etc/apt/sources.list.d/nginx-stable-trusty.list;
-
-# Update and install required packages
-RUN apt-get update && apt-get install -y \
-	curl \
-	libcurl3 \
-	libcurl3-dev \
-	php5-curl \
-	python \
-	cron \
-	openssh-server \
-	nano nginx \
-	php5-fpm \
-	php5-cli \
-	php5-mcrypt \
-	php5-mysqlnd \
-	mysql-client \
-	git
-
-# ------------------------------------------------------------------------------
-# Provision the server
-# ------------------------------------------------------------------------------
-
-# Make the web directory
-RUN mkdir /share
-RUN sudo chown -R www-data:www-data /share
-
-# Make supervisor directories
-RUN mkdir -p /etc/supervisord/
-RUN mkdir /var/log/supervisord
-
-# Copy supervisor conf files
+# Copy supervisor config files, Laravel cron file, & default site configuration
 COPY provision/conf/supervisor.conf /etc/supervisord.conf
 COPY provision/service/* /etc/supervisord/
-
-# Supervisor and Superlance
-RUN curl https://bootstrap.pypa.io/ez_setup.py -o - | python
-RUN easy_install supervisor
-RUN easy_install superlance
-
-# SSH daemon
-RUN mkdir /var/run/sshd
-RUN sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /etc/ssh/sshd_config
-
-# SSH directories
-RUN mkdir -p /root/.ssh
-RUN chmod 700 /root/.ssh
-RUN chown root:root /root/.ssh
-
-# SSH keys
-COPY provision/keys/config /root/.ssh/config
-RUN chmod 600 /root/.ssh/config
-
-# copy a development default site configuration
+COPY provision/cron/laravel /etc/cron.d/laravel
 COPY provision/conf/nginx-default /etc/nginx/sites-available/default
 
-# disable 'daemonize' in Nginx (because we use Supervisor instead)
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+# Configure PHP, Nginx, Redis, and clean up
+RUN sed -i 's/;opcache.enable=0/opcache.enable=1/g' /etc/php/7.0/fpm/php.ini && \
+	sed -i 's/;opcache.fast_shutdown=0/opcache.fast_shutdown=1/g' /etc/php/7.0/fpm/php.ini && \
+	sed -i 's/;opcache.enable_file_override=0/opcache.enable_file_override=1/g' /etc/php/7.0/fpm/php.ini && \
+	sed -i 's/;opcache.revalidate_path=0/opcache.revalidate_path=1/g' /etc/php/7.0/fpm/php.ini && \
+	sed -i 's/;opcache.save_comments=1/opcache.save_comments=1/g' /etc/php/7.0/fpm/php.ini && \
+	sed -i 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=60/g' /etc/php/7.0/fpm/php.ini && \
+	sed -i 's/pm.max_children = 5/pm.max_children = 12/g' /etc/php/7.0/fpm/pool.d/www.conf && \
+	sed -i 's/pm.start_servers = 2/pm.start_servers = 4/g' /etc/php/7.0/fpm/pool.d/www.conf && \
+	sed -i 's/pm.min_spare_servers = 1/pm.min_spare_servers = 4/g' /etc/php/7.0/fpm/pool.d/www.conf && \
+	sed -i 's/pm.max_spare_servers = 3/pm.max_spare_servers = 8/g' /etc/php/7.0/fpm/pool.d/www.conf && \
+	echo "daemon off;" >> /etc/nginx/nginx.conf && \
+	sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.0/fpm/php-fpm.conf && \
+	sed -i 's/^daemonize yes/daemonize no/' /etc/redis/redis.conf && \
+	sed -i 's/^# maxmemory <bytes>/maxmemory 32mb/' /etc/redis/redis.conf && \
+	sed -i 's/^# maxmemory-policy volatile-lru/maxmemory-policy allkeys-lru/' /etc/redis/redis.conf && \
+	locale-gen en_US.UTF-8 && \
+	apt-get -yq autoremove --purge && \
+	apt-get clean && \
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# copy FPM and CLI PHP configurations
-COPY provision/conf/php.fpm.ini /etc/php5/fpm/php.ini
-COPY provision/conf/php.cli.ini /etc/php5/cli/php.ini
-
-# enable PHP mcrypt extension
-RUN php5enmod mcrypt
-
-# disable 'daemonize' in php5-fpm (because we use supervisor instead)
-RUN sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php5/fpm/php-fpm.conf
-
-# Node & NPM
-RUN curl -sL https://deb.nodesource.com/setup_0.12 | sudo bash -
-RUN sudo apt-get install -y nodejs
-
-# install the latest version of Composer
-RUN php -r "readfile('https://getcomposer.org/installer');" | php
-RUN mv composer.phar /usr/local/bin/composer
-
-# ------------------------------------------------------------------------------
-# Prepare image for use
-# ------------------------------------------------------------------------------
-
-# Expose volumes
-VOLUME ["/share"]
-
-# Expose ports
-EXPOSE 80 22
-
-# ------------------------------------------------------------------------------
-# Set locale (support UTF-8 in the container terminal)
-# ------------------------------------------------------------------------------
-
+# Set the language
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-# ------------------------------------------------------------------------------
-# Clean up
-# ------------------------------------------------------------------------------
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Expose volumes and ports
+#VOLUME ["/share"]
+EXPOSE 80
