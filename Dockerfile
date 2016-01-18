@@ -11,7 +11,9 @@ CMD ["/usr/local/bin/supervisord", "-c", "/etc/supervisord.conf"]
 # Install required packages
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E5267A6C C300EE8C && \
 	echo 'deb http://ppa.launchpad.net/ondrej/php-7.0/ubuntu trusty main' > /etc/apt/sources.list.d/ondrej-php7.list && \
-	echo 'deb http://ppa.launchpad.net/nginx/development/ubuntu trusty main' > /etc/apt/sources.list.d/nginx.list && \
+	echo "deb http://nginx.org/packages/ubuntu/ trusty nginx" > /etc/apt/sources.list.d/nginx.list && \
+    echo "deb-src http://nginx.org/packages/ubuntu/ trusty nginx" >> /etc/apt/sources.list.d/nginx.list && \
+    apt-key adv --fetch-keys "http://nginx.org/keys/nginx_signing.key" && \
 	apt-get update && apt-get install -y \
 		curl \
 		libcurl3 \
@@ -60,6 +62,7 @@ RUN sed -i 's/;opcache.enable=0/opcache.enable=1/g' /etc/php/7.0/fpm/php.ini && 
 	sed -i 's/^daemonize yes/daemonize no/' /etc/redis/redis.conf && \
 	sed -i 's/^# maxmemory <bytes>/maxmemory 32mb/' /etc/redis/redis.conf && \
 	sed -i 's/^# maxmemory-policy volatile-lru/maxmemory-policy allkeys-lru/' /etc/redis/redis.conf && \
+	chmod 644 /etc/cron.d/laravel && \
 	locale-gen en_US.UTF-8 && \
 	apt-get -yq autoremove --purge && \
 	apt-get clean && \
