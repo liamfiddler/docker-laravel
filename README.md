@@ -6,10 +6,9 @@ The Dockerfile and associated setup files for a Laravel or Lumen Docker containe
 ### Packages
 
 The following packages are installed:
-- Nginx 1.7
-- PHP 7.0
-- PHP GD, Mcrypt, Sqlite, MySQL, and Opcache
-- Redis (as a LRU cache)
+- Nginx
+- PHP (with GD, Mcrypt, Sqlite, MySQL, and Opcache)
+- Redis - configured as a LRU cache
 - NPM
 
 Processes are managed by Supervisor.
