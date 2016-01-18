@@ -11,9 +11,7 @@ CMD ["/usr/local/bin/supervisord", "-c", "/etc/supervisord.conf"]
 # Install required packages
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E5267A6C C300EE8C && \
 	echo 'deb http://ppa.launchpad.net/ondrej/php-7.0/ubuntu trusty main' > /etc/apt/sources.list.d/ondrej-php7.list && \
-	echo "deb http://nginx.org/packages/ubuntu/ trusty nginx" > /etc/apt/sources.list.d/nginx.list && \
-    echo "deb-src http://nginx.org/packages/ubuntu/ trusty nginx" >> /etc/apt/sources.list.d/nginx.list && \
-    apt-key adv --fetch-keys "http://nginx.org/keys/nginx_signing.key" && \
+	echo 'deb http://ppa.launchpad.net/nginx/development/ubuntu trusty main' > /etc/apt/sources.list.d/nginx.list && \
 	apt-get update && apt-get install -y \
 		curl \
 		libcurl3 \
