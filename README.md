@@ -34,3 +34,13 @@ by adding the following command to your Dockerfile:
 ```
 RUN rm /etc/cron.d/laravel
 ```
+
+
+### Opcache
+
+PHP Opcache has been enabled and configured to revalidate every 60 seconds. 
+For local development you may wish to change this to revalidate on every request: 
+
+```
+docker exec -it YOUR_CONTAINER_NAME sed -i 's/opcache.revalidate_freq=60/opcache.revalidate_freq=0/g' /etc/php/7.0/fpm/php.ini
+```
