@@ -61,6 +61,7 @@ RUN sed -i 's/;opcache.enable=0/opcache.enable=1/g' /etc/php/7.0/fpm/php.ini && 
 	sed -i 's/^# maxmemory <bytes>/maxmemory 32mb/' /etc/redis/redis.conf && \
 	sed -i 's/^# maxmemory-policy volatile-lru/maxmemory-policy allkeys-lru/' /etc/redis/redis.conf && \
 	chmod 644 /etc/cron.d/laravel && \
+	ln -s /usr/bin/nodejs /usr/bin/node && \
 	locale-gen en_US.UTF-8 && \
 	apt-get -yq autoremove --purge && \
 	apt-get clean && \
