@@ -36,6 +36,23 @@ RUN rm /etc/cron.d/laravel
 ```
 
 
+### Terminal access
+
+SSH is not configured in this container, it is assumed you will gain access
+via the following command:
+
+```
+docker exec -it YOUR_CONTAINER_NAME bash
+```
+
+Once you are in you will need to set the `TERM` environment otherwise some
+commands, like `clear` or `nano`, will fail.
+
+```
+export TERM=xterm
+```
+
+
 ### Opcache
 
 PHP Opcache has been enabled and configured to revalidate every 60 seconds.
