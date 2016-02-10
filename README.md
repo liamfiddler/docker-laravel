@@ -42,7 +42,5 @@ PHP Opcache has been enabled and configured to revalidate every 60 seconds.
 For local development you may wish to disable Opcache:
 
 ```
-docker exec -it YOUR_CONTAINER_NAME sed -i 's/opcache.enable=1/opcache.enable=0/g' /etc/php/7.0/fpm/php.ini
-docker exec -it YOUR_CONTAINER_NAME sed -i 's/opcache.revalidate_freq=60/opcache.revalidate_freq=0/g' /etc/php/7.0/fpm/php.ini
-docker exec -it YOUR_CONTAINER_NAME supervisorctl reload
+docker exec -it YOUR_CONTAINER_NAME bash -c "sed -i 's/opcache.enable=1/opcache.enable=0/g' /etc/php/7.0/fpm/php.ini && sed -i 's/opcache.revalidate_freq=60/opcache.revalidate_freq=0/g' /etc/php/7.0/fpm/php.ini && supervisorctl reload"
 ```
