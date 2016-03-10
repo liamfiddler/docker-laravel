@@ -27,6 +27,9 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E5267A6C C300EE8C &
 		php7.0-sqlite \
 		php7.0-curl \
 		php7.0-opcache \
+		php7.0-mbstring \
+		php7.0-zip \
+		php7.0-xml \
 		php-mysql \
 		redis-server \
 		nodejs \
