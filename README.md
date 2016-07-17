@@ -15,12 +15,22 @@ Processes are managed by Supervisor.
 
 A cron job has been set up which will call the Laravel scheduler once per minute.
 
+Before using Redis with Laravel, you will need to install the `predis/predis`
+package via Composer. Refer to the [Laravel Redis documentation](https://laravel.com/docs/master/redis).
+
 
 ### Adding your website files
 
 ADD/COPY your Laravel/Lumen project to the `/share` directory in your
 Dockerfile, or if you are not extending this container you can mount
 your local directory to `/share` as a volume.
+
+
+### Executing Artisan commands when the container is run
+
+Any [Supervisor program:x config files](http://supervisord.org/configuration.html#program-x-section-values)
+you ADD/COPY to the `/etc/supervisord/` directory will be automatically run when
+the container starts. Make sure the filename ends with `.conf`.
 
 
 ### Usage for non-Laravel or Lumen projects
