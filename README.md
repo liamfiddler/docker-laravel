@@ -2,6 +2,7 @@
 
 The Dockerfile and associated setup files for a Laravel or Lumen Docker container.
 
+![](https://images.microbadger.com/badges/version/liamfiddler/docker-laravel.svg) ![](https://images.microbadger.com/badges/image/liamfiddler/docker-laravel.svg)
 
 ### Packages
 
