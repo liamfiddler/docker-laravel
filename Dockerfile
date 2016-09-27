@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER LiamFiddler <design+docker@liamfiddler.com>
 
 # Set correct environment variables
@@ -10,8 +10,8 @@ CMD ["/usr/local/bin/supervisord", "-c", "/etc/supervisord.conf"]
 
 # Install required packages
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E5267A6C C300EE8C && \
-	echo 'deb http://ppa.launchpad.net/ondrej/php/ubuntu trusty main' > /etc/apt/sources.list.d/ondrej-php7.list && \
-	echo 'deb http://ppa.launchpad.net/nginx/development/ubuntu trusty main' > /etc/apt/sources.list.d/nginx.list && \
+	echo 'deb http://ppa.launchpad.net/ondrej/php/ubuntu xenial main' > /etc/apt/sources.list.d/ondrej-php7.list && \
+	echo 'deb http://ppa.launchpad.net/nginx/development/ubuntu xenial main' > /etc/apt/sources.list.d/nginx.list && \
 	apt-get update && apt-get install -y \
 		curl \
 		libcurl3 \
