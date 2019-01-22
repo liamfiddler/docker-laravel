@@ -71,8 +71,9 @@ RUN sed -i 's/;opcache.enable=0/opcache.enable=1/g' /etc/php/7.2/fpm/php.ini && 
 	sed -i 's/;opcache.revalidate_path=0/opcache.revalidate_path=1/g' /etc/php/7.2/fpm/php.ini && \
 	sed -i 's/;opcache.save_comments=1/opcache.save_comments=1/g' /etc/php/7.2/fpm/php.ini && \
 	sed -i 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=60/g' /etc/php/7.2/fpm/php.ini && \
-	echo "extension=mcrypt.so" >> /etc/php/7.2/fpm/php.ini && \
-	echo "extension=mcrypt.so" >> /etc/php/7.2/cli/php.ini && \
+	echo "extension=mcrypt.so" > /etc/php/7.2/mods-available/mcrypt.ini && \
+	ln -s /etc/php/7.2/mods-available/mcrypt.ini /etc/php/7.2/fpm/conf.d/20-mcrypt.ini && \
+	ln -s /etc/php/7.2/mods-available/mcrypt.ini /etc/php/7.2/cli/conf.d/20-mcrypt.ini && \
 	sed -i 's/pm.max_children = 5/pm.max_children = 12/g' /etc/php/7.2/fpm/pool.d/www.conf && \
 	sed -i 's/pm.start_servers = 2/pm.start_servers = 4/g' /etc/php/7.2/fpm/pool.d/www.conf && \
 	sed -i 's/pm.min_spare_servers = 1/pm.min_spare_servers = 4/g' /etc/php/7.2/fpm/pool.d/www.conf && \
