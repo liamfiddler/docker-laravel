@@ -53,8 +53,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E5267A6C C300EE8C &
 	mkdir /var/log/supervisord && \
 	mkdir /run/php && \
 	curl https://bootstrap.pypa.io/ez_setup.py -o - | python && \
-	pecl install mcrypt-1.0.1 \
-	easy_install supervisor
+	easy_install supervisor && \
+	pecl install mcrypt-1.0.1
 
 RUN apt-get install php7.2-soap -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
